@@ -31,8 +31,8 @@ void show_help(void)
     printf(" procsplice [options]\n\n");   
     printf(" e.g 'procsplice --heap dump -p $$ -f /tmp/heap_$$'\n");
     printf("    ('procsplice -hd -p $$ -f /tmp/heap_$$')\n\n");
-    printf(" e.g 'procsplice -xc -hl -p 1234 -f /tmp/heap'\n");
-    printf("     'procsplice -xs -sd -p 1234 -f /tmp/stack'\n");
+    printf(" e.g 'procsplice -hl -p 1234 -f /tmp/heap'\n");
+    printf("     'procsplice -sd -p 1234 -f /tmp/stack'\n");
     printf("     'procsplice -cd -p 1234 -f /tmp/code'\n\n");
     exit(0);
 }
