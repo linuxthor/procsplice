@@ -134,14 +134,13 @@ int main(int argc, char **argv)
                       amax;
 
     // options.. 
-                int c,hd=0,hl=0,sd=0,sl=0,cd=0,
-                                cl=0,ad=0,al=0;
+    int c,hd=0,hl=0,sd=0,sl=0,cd=0,cl=0,ad=0,al=0;
     static struct option long_options[] =
     {
         {"heap",  optional_argument, NULL, 'h'},
         {"stack", optional_argument, NULL, 's'},
         {"code",  optional_argument, NULL, 'c'},
-        {"misc",  optional_argument, NULL, 'm'},
+        {"misc",  optional_argument, NULL, 'a'},
         {"amin",  optional_argument, NULL, 'i'},
         {"amax",  optional_argument, NULL, 'o'},
         {"pid",   optional_argument, NULL, 'p'},
@@ -154,7 +153,7 @@ int main(int argc, char **argv)
         show_help();
     }
 
-    while ((c = getopt_long(argc, argv, "h:s:c:m:i:o:p:f:", 
+    while ((c = getopt_long(argc, argv, "h:s:c:a:i:o:p:f:", 
                                      long_options, NULL)) != -1)
     {
         switch (c)
