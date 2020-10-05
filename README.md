@@ -5,7 +5,7 @@ Tool for working with memory of a running Linux process
 
 ## Note
 
-You must be able to ptrace the process you wish to operate on. If something like [yama](https://www.kernel.org/doc/Documentation/security/Yama.txt) is used then this may require you to become root. 
+You must be able to ptrace the process you wish to operate on. If something like [yama](https://www.kernel.org/doc/Documentation/security/Yama.txt) is used then this may require root/CAP_SYS_PTRACE. 
 
 (This tool doesn't use ptrace, rather it uses process_vm_readv / process_vm_writev but the access checks are the same) 
 
