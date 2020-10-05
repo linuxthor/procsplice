@@ -26,8 +26,6 @@
 #include <signal.h>
 #include <sys/uio.h>
 
-#define PATH_MAX 4096
-
 void show_help(void)
 {
     printf("\nUsage:\n"); 
@@ -119,11 +117,11 @@ int read_and_put(unsigned long from, unsigned long to, pid_t pid, FILE *f)
 int main(int argc, char **argv)
 {
     char         fname[64],
-            reid[PATH_MAX],
+                 reid[512],
                   flags[6],
-             nam[PATH_MAX],
-            cexe[PATH_MAX],
-            cnam[PATH_MAX];
+                   nam[64],
+                  cexe[64],
+                  cnam[64];
 
     char             *fnam;
 
@@ -243,7 +241,7 @@ int main(int argc, char **argv)
     }
 
     sprintf(cexe, "/proc/%d/exe", pid); 
-    if(readlink(cexe, cnam, PATH_MAX) == 0)
+    if(readlink(cexe, cnam, 64) == 0)
     {
         printf("There was a problem resolving PID to path\n");
         exit(1); 
@@ -319,7 +317,7 @@ int main(int argc, char **argv)
 
     while (1)
     {
-        if (fgets(reid, PATH_MAX, f) == NULL) break;
+        if (fgets(reid, 512, f) == NULL) break;
         int ret = sscanf(reid, "%lx-%lx %4c %lx %lx:%lx %lu %s", &from, &to, flags,
                                                  &pgoff, &major, &minor, &ino, nam);
         if (ret != 8)
