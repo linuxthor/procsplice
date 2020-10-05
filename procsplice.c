@@ -128,13 +128,14 @@ int main(int argc, char **argv)
     char *stak = "[stack]";
     char *heep =  "[heap]";
     char *rxp  =    "r-xp";
+    char *rwxp =    "rwxp";
 
     unsigned long amin,  
                       amax;
 
     // options.. 
-                          int c,hd,hl,sd,sl,cd,
-                                      cl,ad,al;
+                int c,hd=0,hl=0,sd=0,sl=0,cd=0,
+                                cl=0,ad=0,al=0;
     static struct option long_options[] =
     {
         {"heap",  optional_argument, NULL, 'h'},
@@ -189,7 +190,6 @@ int main(int argc, char **argv)
                    printf("Warning - this may fail if memory protection\n");
                    printf("doesn't allow writing - see tools directory \n");
                    printf("for a (hacky) way to force this..\n\n");
-                   exit(1); 
                }
            break; 
            case 'a':    
@@ -223,12 +223,12 @@ int main(int argc, char **argv)
         exit(1); 
     }
 
-    sprintf(cexe, "/proc/%d/exe", pid); 
+    sprintf(cexe, "/proc/%d/exe", pid);
     if(readlink(cexe, cnam, 64) == 0)
     {
         printf("There was a problem resolving PID to path\n");
         exit(1); 
-    } 
+    }
 
     if(!hd && !sd && !cd && !ad && !hl && !sl && !cl && !al)
     {
@@ -272,14 +272,14 @@ int main(int argc, char **argv)
 
     if(ad)
     {
-        printf("Saving range to file %s\n", fnam);
+        printf("Saving range %lx-%lx to file %s\n", amin,amax,fnam);
         get_and_save(amin, amax, pid, uf); 
         exit(0); 
     }
 
     if(al)
     {
-        printf("Loading range from file %s\n", fnam);
+        printf("Loading range %lx-%lx from file %s\n", amin,amax,fnam);
         read_and_put(amin, amax, pid, uf); 
         exit(0);
     }
@@ -298,13 +298,13 @@ int main(int argc, char **argv)
         {
             if(hd == 1)
             {
-                printf("Saving heap to file %s\n", fnam);
+                printf("Saving heap %lx-%lx to file %s\n",from,to,fnam);
                 get_and_save(from, to, pid, uf);
                 exit(0);
             }
             if(hl == 1)
             {
-                printf("Loading heap from file %s\n", fnam);
+                printf("Loading heap %lx-%lx from file %s\n",from,to,fnam);
                 read_and_put(from, to, pid, uf);
                 exit(0);
             }
@@ -314,28 +314,28 @@ int main(int argc, char **argv)
         {
             if(sd == 1)
             {
-                printf("Saving stack to file %s\n", fnam);
+                printf("Saving stack %lx-%lx to file %s\n", from,to,fnam);
                 get_and_save(from, to, pid, uf);
                 exit(0);
             }
             if(sl == 1)
             {
-                printf("Loading stack from file %s\n", fnam);
+                printf("Loading stack %lx-%lx from file %s\n", from,to,fnam);
                 read_and_put(from, to, pid, uf);
                 exit(0);
             }
         }
-        if ((strcmp(flags, rxp) == 0) && (strcmp(nam, cnam) == 0))
+        if ((strcmp(flags, rwxp) == 0) && (strstr(nam, cnam) == 0))
         {
             if(cd == 1)
             {
-                printf("Saving code to file %s\n", fnam);
+                printf("Saving code %lx-%lx to file %s\n", from,to,fnam);
                 get_and_save(from, to, pid, uf); 
                 exit(0);
             }
             if(cl == 1)
             {
-                printf("Restoring code from file %s\n", fnam);
+                printf("Restoring code %lx-%lx from file %s\n", from,to,fnam);
                 read_and_put(from, to, pid, uf);
                 exit(0); 
             }
