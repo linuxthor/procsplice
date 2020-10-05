@@ -23,7 +23,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <signal.h>
 #include <sys/uio.h>
 
 void show_help(void)
@@ -36,12 +35,6 @@ void show_help(void)
     printf("     'procsplice -xs -sd -p 1234 -f /tmp/stack'\n");
     printf("     'procsplice -cd -p 1234 -f /tmp/code'\n\n");
     exit(0);
-}
-
-void sig_continue(int pid)
-{
-    printf("Sending SIGCONT to process\n");
-    kill(pid, SIGCONT); 
 }
 
 int get_and_save(unsigned long from, unsigned long to, pid_t pid, FILE *f)
@@ -141,8 +134,7 @@ int main(int argc, char **argv)
 
     // options.. 
                           int c,hd,hl,sd,sl,cd,
-                             ad,al,sig_s,sig_c;
-                                    int cl = 0;
+                                      cl,ad,al;
     static struct option long_options[] =
     {
         {"heap",  optional_argument, NULL, 'h'},
@@ -152,7 +144,6 @@ int main(int argc, char **argv)
         {"amin",  optional_argument, NULL, 'i'},
         {"amax",  optional_argument, NULL, 'o'},
         {"pid",   optional_argument, NULL, 'p'},
-        {"sig",   optional_argument, NULL, 'x'},
         {"file",  optional_argument, NULL, 'f'},
         {NULL, 0, NULL, 0}
     };
@@ -162,7 +153,7 @@ int main(int argc, char **argv)
         show_help();
     }
 
-    while ((c = getopt_long(argc, argv, "h:s:c:m:i:o:p:x:f:", 
+    while ((c = getopt_long(argc, argv, "h:s:c:m:i:o:p:f:", 
                                      long_options, NULL)) != -1)
     {
         switch (c)
@@ -195,7 +186,9 @@ int main(int argc, char **argv)
                if(optarg[0] == 'l')
                {
                    cl = 1;   
-                   printf("Loading code not supported yet\n");
+                   printf("Warning - this may fail if memory protection\n");
+                   printf("doesn't allow writing - see tools directory \n");
+                   printf("for a (hacky) way to force this..\n\n");
                    exit(1); 
                }
            break; 
@@ -218,16 +211,6 @@ int main(int argc, char **argv)
            case 'p':     
                pid =  atoi(optarg);     
            break;
-           case 'x':        
-               if(optarg[0] == 's')
-               {
-                   sig_s = 1;     // signal process to stop 
-               }
-               if(optarg[0] == 'c')
-               {
-                   sig_c = 1;     // signal process to continue
-               }
-           break; 
            case 'f':            
                fnam = (char *)optarg;
            break;
@@ -278,12 +261,6 @@ int main(int argc, char **argv)
         printf("Error opening %s\n", fnam);
     }
 
-    if((sd || hd || cd || ad) && sig_s)
-    {
-        printf("Stopping PID (%d)\n", pid);
-        kill(pid, SIGSTOP); 
-    } 
-
     sprintf(fname, "/proc/%d/maps", pid);
     f = fopen(fname,   "rb");
 
@@ -297,10 +274,6 @@ int main(int argc, char **argv)
     {
         printf("Saving range to file %s\n", fnam);
         get_and_save(amin, amax, pid, uf); 
-        if(sig_c)
-        {
-            sig_continue(pid);
-        }
         exit(0); 
     }
 
@@ -308,10 +281,6 @@ int main(int argc, char **argv)
     {
         printf("Loading range from file %s\n", fnam);
         read_and_put(amin, amax, pid, uf); 
-        if(sig_c)
-        {
-            sig_continue(pid);
-        }
         exit(0);
     }
 
@@ -331,20 +300,12 @@ int main(int argc, char **argv)
             {
                 printf("Saving heap to file %s\n", fnam);
                 get_and_save(from, to, pid, uf);
-                if(sig_c)
-                {
-                    sig_continue(pid);
-                }
                 exit(0);
             }
             if(hl == 1)
             {
                 printf("Loading heap from file %s\n", fnam);
                 read_and_put(from, to, pid, uf);
-                if(sig_c)
-                {
-                    sig_continue(pid); 
-                } 
                 exit(0);
             }
         }
@@ -355,20 +316,12 @@ int main(int argc, char **argv)
             {
                 printf("Saving stack to file %s\n", fnam);
                 get_and_save(from, to, pid, uf);
-                if(sig_c)
-                {
-                    sig_continue(pid); 
-                }
                 exit(0);
             }
             if(sl == 1)
             {
                 printf("Loading stack from file %s\n", fnam);
                 read_and_put(from, to, pid, uf);
-                if(sig_c)
-                {
-                    sig_continue(pid);
-                }
                 exit(0);
             }
         }
@@ -378,16 +331,13 @@ int main(int argc, char **argv)
             {
                 printf("Saving code to file %s\n", fnam);
                 get_and_save(from, to, pid, uf); 
-                if(sig_c)
-                {
-                    printf("Starting process\n");
-                    kill(pid, SIGCONT);
-                }
                 exit(0);
             }
             if(cl == 1)
             {
-                // ptrace? 
+                printf("Restoring code from file %s\n", fnam);
+                read_and_put(from, to, pid, uf);
+                exit(0); 
             }
         }
     }
