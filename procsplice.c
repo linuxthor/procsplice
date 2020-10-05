@@ -324,7 +324,7 @@ int main(int argc, char **argv)
                 exit(0);
             }
         }
-        if ((strcmp(flags, rwxp) == 0) && (strstr(nam, cnam) == 0))
+        if (((strcmp(flags, rwxp) == 0) || (strcmp(flags,  rxp) == 0)) && (strstr(nam, cnam) == 0))
         {
             if(cd == 1)
             {
