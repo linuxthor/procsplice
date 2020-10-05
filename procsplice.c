@@ -223,6 +223,7 @@ int main(int argc, char **argv)
     }
 
     sprintf(cexe, "/proc/%d/exe", pid);
+    memset(cnam, 0, 64);
     if(readlink(cexe, cnam, 64) == 0)
     {
         printf("There was a problem resolving PID to path\n");
@@ -324,7 +325,7 @@ int main(int argc, char **argv)
                 exit(0);
             }
         }
-        if (((strcmp(flags, rwxp) == 0) || (strcmp(flags,  rxp) == 0)) && (strstr(nam, cnam) == 0))
+        if (((strcmp(flags, rwxp) == 0) || (strcmp(flags, rxp) == 0)) && (strcmp(nam, cnam) == 0))
         {
             if(cd == 1)
             {
