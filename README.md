@@ -1,7 +1,7 @@
 # procsplice
 ![](./procsplice-logo.png)    
 
-Tool for working with memory of a running Linux process   
+Tool for working with the memory of a running Linux process   
 
 ## Note
 
