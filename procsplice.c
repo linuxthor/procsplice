@@ -259,6 +259,7 @@ int main(int argc, char **argv)
     if(uf == NULL)
     {
         printf("Error opening %s\n", fnam);
+        exit(1);
     }
 
     sprintf(fname, "/proc/%d/maps", pid);
